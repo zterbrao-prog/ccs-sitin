@@ -1,19 +1,17 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
 
 async function setup() {
-  // Connect without database first to create it
   const conn = await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '112002'
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '112002',
+    port: process.env.MYSQLPORT || 3306,
+    database: process.env.MYSQLDATABASE || 'ccs_sitin'
   });
 
   console.log('Connected to MySQL...');
 
-  await conn.query(`CREATE DATABASE IF NOT EXISTS ccs_sitin`);
-  await conn.query(`USE ccs_sitin`);
-
-  // Users table
   await conn.query(`
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -32,7 +30,6 @@ async function setup() {
     )
   `);
 
-  // Sit-in sessions table
   await conn.query(`
     CREATE TABLE IF NOT EXISTS sitins (
       id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +46,6 @@ async function setup() {
     )
   `);
 
-  // Announcements table
   await conn.query(`
     CREATE TABLE IF NOT EXISTS announcements (
       id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -61,7 +57,6 @@ async function setup() {
     )
   `);
 
-  // Feedback table
   await conn.query(`
     CREATE TABLE IF NOT EXISTS feedback (
       id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -74,7 +69,6 @@ async function setup() {
     )
   `);
 
-  // Rewards table
   await conn.query(`
     CREATE TABLE IF NOT EXISTS rewards (
       id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -87,7 +81,6 @@ async function setup() {
     )
   `);
 
-  // PC Reservations table
   await conn.query(`
     CREATE TABLE IF NOT EXISTS pc_reservations (
       id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -100,8 +93,6 @@ async function setup() {
     )
   `);
 
-  // Seed admin account
-  const bcrypt = require('bcryptjs');
   const [existing] = await conn.query(`SELECT id FROM users WHERE idNumber = 'admin'`);
   if (existing.length === 0) {
     const hashed = await bcrypt.hash('admin123', 10);
