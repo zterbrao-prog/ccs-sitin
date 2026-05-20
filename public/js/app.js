@@ -1,7 +1,7 @@
 // ===== CCS SIT-IN MONITORING SYSTEM =====
 // API-based data management (Node.js + MySQL backend)
 
-const API = 'http://localhost:3000/api';
+const API = '/api';
 
 // ===== HELPER =====
 async function apiCall(method, endpoint, body = null) {
