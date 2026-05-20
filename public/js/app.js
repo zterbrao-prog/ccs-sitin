@@ -23,10 +23,10 @@ const Auth = {
   async register(data) {
     return apiCall('POST', '/auth/register', data);
   },
-  async logout() {
+async logout() {
     await apiCall('POST', '/auth/logout');
-    const isInPages = window.location.pathname.includes('/pages/');
-    window.location.href = isInPages ? '../login.html' : 'login.html';
+    window.location.href = '/login.html';
+  },
   },
   async current() {
     const data = await apiCall('GET', '/auth/me');
