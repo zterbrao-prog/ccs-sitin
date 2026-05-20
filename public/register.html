@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register – PELISAN Sit-In</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="register-page">
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">PELISAN Sit-In Monitoring System</a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+
+  <a href="login.html" class="btn-back">← Back</a>
+  <div class="reg-page-title">Create Account</div>
+
+  <div class="register-body">
+    <div class="register-container">
+
+      <!-- LEFT: Form -->
+      <div class="register-form-side">
+        <h2 class="register-title">Sign up</h2>
+        <p class="register-sub">Join the PELISAN Sit-In system</p>
+
+        <div id="reg-alert" class="alert"></div>
+
+        <div class="form-group">
+          <span class="form-control-label">ID Number</span>
+          <input type="text" id="idNumber" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">Last Name</span>
+          <input type="text" id="lastName" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">First Name</span>
+          <input type="text" id="firstName" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">Middle Name</span>
+          <input type="text" id="middleName" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">Password</span>
+          <input type="password" id="password" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">Repeat Password</span>
+          <input type="password" id="repeatPassword" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">Email</span>
+          <input type="email" id="email" class="form-control" placeholder="">
+        </div>
+        <div class="form-group">
+          <span class="form-control-label">Address</span>
+          <input type="text" id="address" class="form-control" placeholder="">
+        </div>
+
+        <button class="btn-register" onclick="handleRegister()">Create Account →</button>
+      </div>
+
+      <!-- RIGHT: Illustration -->
+      <div class="register-illustration">
+        <svg viewBox="0 0 300 340" width="280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#00e5c8;stop-opacity:0.7"/>
+              <stop offset="100%" style="stop-color:#006655;stop-opacity:0.3"/>
+            </linearGradient>
+            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#0a1520"/>
+              <stop offset="100%" style="stop-color:#05101a"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <circle cx="220" cy="80" r="60" fill="rgba(0,229,200,0.04)" stroke="rgba(0,229,200,0.12)" stroke-width="1"/>
+          <circle cx="220" cy="80" r="40" fill="rgba(0,229,200,0.06)" stroke="rgba(0,229,200,0.15)" stroke-width="1"/>
+          <rect x="150" y="50" width="130" height="180" rx="14" fill="url(#grad2)" stroke="rgba(0,229,200,0.3)" stroke-width="1.5"/>
+          <rect x="150" y="50" width="130" height="6" rx="3" fill="url(#grad1)"/>
+          <circle cx="215" cy="105" r="28" fill="rgba(0,229,200,0.08)" stroke="rgba(0,229,200,0.25)" stroke-width="1.5"/>
+          <circle cx="215" cy="100" r="14" fill="rgba(0,229,200,0.2)"/>
+          <ellipse cx="215" cy="122" rx="20" ry="10" fill="rgba(0,229,200,0.15)"/>
+          <rect x="165" y="148" width="100" height="5" rx="2.5" fill="rgba(0,229,200,0.25)"/>
+          <rect x="165" y="160" width="75" height="4" rx="2" fill="rgba(255,255,255,0.1)"/>
+          <rect x="165" y="172" width="85" height="4" rx="2" fill="rgba(255,255,255,0.07)"/>
+          <circle cx="215" cy="195" r="4" fill="rgba(0,229,200,0.4)"/>
+          <rect x="185" y="208" width="60" height="16" rx="8" fill="url(#grad1)"/>
+          <text x="215" y="219" text-anchor="middle" fill="#0a0e1a" font-size="7" font-family="sans-serif" font-weight="bold">Register</text>
+          <circle cx="88" cy="100" r="23" fill="#f5c9a0"/>
+          <ellipse cx="88" cy="83" rx="23" ry="11" fill="#2d2012"/>
+          <rect x="60" y="118" width="56" height="58" rx="10" fill="#0d3530"/>
+          <circle cx="105" cy="148" r="3.5" fill="#00e5c8" opacity="0.7"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">© 2024 PELISAN Sit-In · College of Computer Studies</footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    Auth.current().then(user => {
+      if (user) {
+        window.location.href = user.role === 'admin' ? 'pages/admin-dashboard.html' : 'pages/student-dashboard.html';
+      }
+    });
+
+    async function handleRegister() {
+      const fields = {
+        idNumber: document.getElementById('idNumber').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        firstName: document.getElementById('firstName').value.trim(),
+        middleName: document.getElementById('middleName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        address: document.getElementById('address').value.trim()
+      };
+      const repeat = document.getElementById('repeatPassword').value;
+
+      if (!fields.idNumber || !fields.lastName || !fields.firstName || !fields.email || !fields.password) {
+        showAlert('reg-alert', 'Please fill in all required fields.'); return;
+      }
+      if (fields.password !== repeat) { showAlert('reg-alert', 'Passwords do not match.'); return; }
+      if (fields.password.length < 6) { showAlert('reg-alert', 'Password must be at least 6 characters.'); return; }
+
+      const btn = document.querySelector('.btn-register');
+      btn.textContent = 'Creating account...';
+      btn.disabled = true;
+
+      const result = await Auth.register(fields);
+      btn.textContent = 'Create Account →';
+      btn.disabled = false;
+
+      if (result.error) { showAlert('reg-alert', result.error); return; }
+
+      showAlert('reg-alert', 'Registration successful! Redirecting to login...', 'success');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+    }
+  </script>
+</body>
+</html>
