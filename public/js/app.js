@@ -23,10 +23,9 @@ const Auth = {
   async register(data) {
     return apiCall('POST', '/auth/register', data);
   },
-async logout() {
+  async logout() {
     await apiCall('POST', '/auth/logout');
-    window.location.href = '/login.html';
-  },
+    window.location.replace('/login.html');
   },
   async current() {
     const data = await apiCall('GET', '/auth/me');
@@ -38,8 +37,8 @@ async logout() {
   },
   async require(admin = false) {
     const u = await this.current();
-    if (!u) { window.location.href = '/login.html'; return null; }
-    if (admin && u.role !== 'admin') { window.location.href = '/pages/student-dashboard.html'; return null; }
+    if (!u) { window.location.replace('/login.html'); return null; }
+    if (admin && u.role !== 'admin') { window.location.replace('/pages/student-dashboard.html'); return null; }
     return u;
   }
 };
