@@ -38,7 +38,6 @@ const Auth = {
   async require(admin = false) {
     const u = await this.current();
     if (!u) { window.location.replace('/login.html'); return null; }
-
     if (admin && u.role !== 'admin') { window.location.replace('/pages/student-dashboard.html'); return null; }
     return u;
   }
@@ -55,7 +54,7 @@ const SitIn = {
   async end(sitinId) { return apiCall('POST', `/sitins/end/${sitinId}`); },
 
   formatTime(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   },
   formatDuration(timeIn, timeOut) {
