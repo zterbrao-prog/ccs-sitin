@@ -26,8 +26,11 @@ app.use('/api/sitins', require('./routes/sitins'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api', require('./routes/misc'));
 
-// Catch-all: serve index.html for any unknown routes
+// Catch-all: serve index.html for HTML page routes only
 app.get('*', (req, res) => {
+  if (req.path.includes('.')) {
+    return res.status(404).send('Not found');
+  }
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
