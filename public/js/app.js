@@ -1,3 +1,4 @@
+console.log("APP JS LOADED SUCCESSFULLY");
 // ===== CCS SIT-IN MONITORING SYSTEM =====
 // API-based data management (Node.js + MySQL backend)
 
