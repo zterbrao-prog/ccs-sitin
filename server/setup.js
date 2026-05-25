@@ -2,15 +2,20 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
 async function setup() {
+  // Connect WITHOUT database first so we can create it if needed
   const conn = await mysql.createConnection({
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
+    host:     process.env.MYSQLHOST     || 'localhost',
+    user:     process.env.MYSQLUSER     || 'root',
     password: process.env.MYSQLPASSWORD || '112002',
-    port: process.env.MYSQLPORT || 3306,
-    database: process.env.MYSQLDATABASE || 'ccs_sitin'
+    port:     process.env.MYSQLPORT     || 3306,
   });
 
-  console.log('Connected to MySQL...');
+  console.log('✅ Connected to MySQL...');
+
+  // Create database if it doesn't exist
+  await conn.query(`CREATE DATABASE IF NOT EXISTS ccs_sitin`);
+  await conn.query(`USE ccs_sitin`);
+  console.log('✅ Database ccs_sitin ready.');
 
   await conn.query(`
     CREATE TABLE IF NOT EXISTS users (
@@ -42,6 +47,19 @@ async function setup() {
       timeOut DATETIME DEFAULT NULL,
       status ENUM('active', 'done') DEFAULT 'active',
       date VARCHAR(50) NOT NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await conn.query(`
+    CREATE TABLE IF NOT EXISTS sitin_requests (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      studentId VARCHAR(50) NOT NULL,
+      studentName VARCHAR(255) NOT NULL,
+      purpose VARCHAR(255) NOT NULL,
+      lab VARCHAR(100) NOT NULL,
+      pcNumber INT DEFAULT NULL,
+      status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -93,6 +111,9 @@ async function setup() {
     )
   `);
 
+  console.log('✅ All tables created.');
+
+  // Create admin account if not exists
   const [existing] = await conn.query(`SELECT id FROM users WHERE idNumber = 'admin'`);
   if (existing.length === 0) {
     const hashed = await bcrypt.hash('admin123', 10);
@@ -100,14 +121,17 @@ async function setup() {
       INSERT INTO users (idNumber, password, firstName, lastName, role, remainingSessions)
       VALUES ('admin', ?, 'Admin', 'CCS', 'admin', 9999)
     `, [hashed]);
-    console.log('Admin account created: ID=admin, Password=admin123');
+    console.log('✅ Admin account created: ID=admin, Password=admin123');
+  } else {
+    console.log('ℹ️  Admin account already exists.');
   }
 
   await conn.end();
-  console.log('Database setup complete!');
+  console.log('\n✅ Setup complete! Now run: node server/index.js\n');
 }
 
 setup().catch(err => {
-  console.error('Setup error:', err.message);
+  console.error('\n❌ Setup failed:', err.message);
+  console.error('   Make sure MySQL is running and the password in setup.js is correct.\n');
   process.exit(1);
 });

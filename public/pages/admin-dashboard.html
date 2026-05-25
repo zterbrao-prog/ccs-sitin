@@ -80,6 +80,9 @@
         <li class="sidebar-nav-item" id="nav-sitin">
           <a href="#" onclick="showSection('sitin')"><span class="nav-icon">➕</span> Add Sit-In</a>
         </li>
+        <li class="sidebar-nav-item" id="nav-requests">
+          <a href="#" onclick="showSection('requests')"><span class="nav-icon">📥</span> Sit-In Requests <span id="req-badge" style="display:none;background:var(--p-teal);color:#000;font-size:0.65rem;font-weight:800;padding:1px 6px;border-radius:99px;margin-left:4px;"></span></a>
+        </li>
         <li class="sidebar-nav-item" id="nav-current">
           <a href="#" onclick="showSection('current')"><span class="nav-icon">🟢</span> Current Sit-In</a>
         </li>
@@ -186,6 +189,21 @@
               <tbody id="students-tbody"></tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      <!-- SIT-IN REQUESTS -->
+      <section id="section-requests" style="display:none;">
+        <div class="page-header">
+          <h1 class="page-title">📥 Sit-In Requests</h1>
+          <p class="page-subtitle">Review and approve or reject student sit-in requests.</p>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div class="card-title" style="margin:0;">Pending Requests</div>
+            <button class="btn btn-sm" style="padding:0.35rem 1rem;font-size:0.8rem;" onclick="loadRequests()">↻ Refresh</button>
+          </div>
+          <div id="requests-list"><p class="empty-msg">Loading...</p></div>
         </div>
       </section>
 
@@ -479,8 +497,8 @@
     }
 
     async function loadDashboard() {
-      const [sitins, users, active] = await Promise.all([
-        SitIn.getAll(), Users.getAll(), SitIn.getActive()
+      const [sitins, users, active, requests] = await Promise.all([
+        SitIn.getAll(), Users.getAll(), SitIn.getActive(), SitIn.getAllRequests()
       ]);
       const students = users.filter(u => u.role === 'student');
       const today = new Date().toLocaleDateString();
@@ -489,6 +507,11 @@
       document.getElementById('stat-students').textContent = students.length;
       document.getElementById('stat-today').textContent = sitins.filter(s => s.date === today).length;
       document.getElementById('stat-total').textContent = sitins.length;
+
+      // Update requests badge
+      const pending = (requests || []).filter(r => r.status === 'pending');
+      const badge = document.getElementById('req-badge');
+      if (badge) { if (pending.length > 0) { badge.style.display = 'inline'; badge.textContent = pending.length; } else badge.style.display = 'none'; }
 
       const recent = [...sitins].reverse().slice(0, 10);
       const tbody = document.getElementById('recent-tbody');
@@ -508,7 +531,7 @@
     }
 
     function showSection(name) {
-      ['dashboard','search','sitin','current','announcements','analytics','rewards','feedback','records'].forEach(s => {
+      ['dashboard','search','sitin','requests','current','announcements','analytics','rewards','feedback','records'].forEach(s => {
         document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
         document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
       });
@@ -520,7 +543,61 @@
       if (name === 'rewards') loadRewards();
       if (name === 'feedback') loadFeedback();
       if (name === 'dashboard') loadDashboard();
+      if (name === 'requests') loadRequests();
     }
+
+    async function loadRequests() {
+      const container = document.getElementById('requests-list');
+      container.innerHTML = '<p class="empty-msg">Loading...</p>';
+      const list = await SitIn.getAllRequests();
+      const pending = (list || []).filter(r => r.status === 'pending');
+
+      // Update badge
+      const badge = document.getElementById('req-badge');
+      if (pending.length > 0) { badge.style.display = 'inline'; badge.textContent = pending.length; }
+      else badge.style.display = 'none';
+
+      if (!pending.length) {
+        container.innerHTML = '<p class="empty-msg">No pending sit-in requests.</p>';
+        return;
+      }
+      container.innerHTML = `
+        <table class="data-table">
+          <thead><tr>
+            <th>Student ID</th><th>Name</th><th>Purpose</th><th>Lab</th><th>PC</th><th>Requested</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            ${pending.map(r => `
+              <tr>
+                <td>${r.studentId}</td>
+                <td>${r.studentName}</td>
+                <td>${r.purpose}</td>
+                <td>${r.lab}</td>
+                <td>${r.pcNumber ? '#' + r.pcNumber : '—'}</td>
+                <td>${new Date(r.createdAt).toLocaleString()}</td>
+                <td style="display:flex;gap:0.5rem;">
+                  <button class="btn btn-sm" style="background:rgba(0,229,200,0.15);color:var(--p-teal);border:1px solid rgba(0,229,200,0.3);padding:0.3rem 0.8rem;" onclick="approveReq(${r.id})">✔ Approve</button>
+                  <button class="btn btn-sm" style="background:rgba(255,80,80,0.12);color:#ff6b6b;border:1px solid rgba(255,80,80,0.3);padding:0.3rem 0.8rem;" onclick="rejectReq(${r.id})">✖ Reject</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function approveReq(id) {
+      const result = await SitIn.approveRequest(id);
+      if (result.error) { alert('Error: ' + result.error); return; }
+      await loadRequests();
+      await loadDashboard();
+    }
+
+    async function rejectReq(id) {
+      const result = await SitIn.rejectRequest(id);
+      if (result.error) { alert('Error: ' + result.error); return; }
+      await loadRequests();
+    }
+
+
 
     async function searchStudents() {
       const q = document.getElementById('student-search').value.toLowerCase();

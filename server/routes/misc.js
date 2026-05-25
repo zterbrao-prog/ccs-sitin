@@ -77,6 +77,24 @@ router.post('/rewards', async (req, res) => {
   } catch (err) { res.json({ error: err.message }); }
 });
 
+// ===== LEADERBOARD =====
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT s.studentId as idNumber, s.studentName as name,
+             COUNT(*) as totalSessions,
+             COALESCE(SUM(r.points), 0) as totalPoints
+      FROM sitins s
+      LEFT JOIN rewards r ON r.studentId = s.studentId
+      WHERE s.status = 'done'
+      GROUP BY s.studentId, s.studentName
+      ORDER BY totalSessions DESC, totalPoints DESC
+      LIMIT 10
+    `);
+    res.json(rows);
+  } catch (err) { res.json({ error: err.message }); }
+});
+
 // ===== ANALYTICS =====
 router.get('/analytics', async (req, res) => {
   try {

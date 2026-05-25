@@ -25,7 +25,7 @@ const Auth = {
   },
   async logout() {
     await apiCall('POST', '/auth/logout');
-    window.location.replace('/login.html');
+    window.location.replace('/login.html'); // served directly by express static
   },
   async current() {
     const data = await apiCall('GET', '/auth/me');
@@ -37,7 +37,7 @@ const Auth = {
   },
   async require(admin = false) {
     const u = await this.current();
-    if (!u) { window.location.replace('/login.html'); return null; }
+    if (!u) { window.location.replace('/login.html'); // served directly by express static return null; }
     if (admin && u.role !== 'admin') { window.location.replace('/pages/student-dashboard.html'); return null; }
     return u;
   }
@@ -52,6 +52,15 @@ const SitIn = {
     return apiCall('POST', '/sitins/start', { studentId, studentName, purpose, lab, pcNumber });
   },
   async end(sitinId) { return apiCall('POST', `/sitins/end/${sitinId}`); },
+
+  // Reservation approval flow
+  async submitRequest(studentId, studentName, purpose, lab, pcNumber) {
+    return apiCall('POST', '/sitins/request', { studentId, studentName, purpose, lab, pcNumber });
+  },
+  async getMyRequest(idNumber) { return apiCall('GET', `/sitins/request/student/${idNumber}`); },
+  async getAllRequests()        { return apiCall('GET', '/sitins/requests'); },
+  async approveRequest(id)     { return apiCall('POST', `/sitins/request/${id}/approve`); },
+  async rejectRequest(id)      { return apiCall('POST', `/sitins/request/${id}/reject`); },
 
   formatTime(iso) {
     if (!iso) return '—';
@@ -96,6 +105,11 @@ const Rewards = {
     const rewards = await this.getByStudent(idNumber);
     return rewards.reduce((sum, r) => sum + r.points, 0);
   }
+};
+
+// ===== LEADERBOARD =====
+const Leaderboard = {
+  async get() { return apiCall('GET', '/leaderboard'); }
 };
 
 // ===== PC RESERVATIONS =====

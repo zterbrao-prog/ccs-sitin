@@ -5,6 +5,183 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login – PELISAN Sit-In</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ===== LEADERBOARD WIDGET ===== */
+    .lb-wrapper {
+      position: relative;
+    }
+    .lb-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(0,229,200,0.1);
+      border: 1px solid rgba(0,229,200,0.3);
+      color: var(--p-teal);
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .lb-btn:hover {
+      background: rgba(0,229,200,0.18);
+      border-color: var(--p-teal);
+      box-shadow: 0 0 12px rgba(0,229,200,0.2);
+    }
+    .lb-btn .lb-icon { font-size: 1rem; }
+    .lb-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 310px;
+      background: rgba(10,14,26,0.97);
+      border: 1px solid var(--p-glass-border);
+      border-radius: 14px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,229,200,0.06);
+      z-index: 2000;
+      overflow: hidden;
+      animation: lb-drop 0.2s ease;
+    }
+    .lb-panel.open { display: block; }
+    @keyframes lb-drop {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .lb-panel-header {
+      padding: 1rem 1.1rem 0.75rem;
+      border-bottom: 1px solid var(--p-glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lb-panel-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--p-text);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .lb-panel-title::before {
+      content: '🏆';
+      font-size: 1rem;
+    }
+    .lb-panel-sub {
+      font-size: 0.72rem;
+      color: var(--p-muted);
+      margin-top: 2px;
+    }
+    .lb-close {
+      background: none;
+      border: none;
+      color: var(--p-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .lb-close:hover { color: var(--p-text); }
+    .lb-list {
+      padding: 0.5rem 0;
+      max-height: 370px;
+      overflow-y: auto;
+    }
+    .lb-list::-webkit-scrollbar { width: 3px; }
+    .lb-list::-webkit-scrollbar-thumb { background: var(--p-glass-border); border-radius: 99px; }
+    .lb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1.1rem;
+      transition: background 0.15s;
+    }
+    .lb-item:hover { background: var(--p-glass); }
+    .lb-rank {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .lb-rank.gold   { background: rgba(255,209,102,0.18); color: #ffd166; border: 1px solid rgba(255,209,102,0.4); }
+    .lb-rank.silver { background: rgba(200,210,230,0.14); color: #c8d2e6; border: 1px solid rgba(200,210,230,0.3); }
+    .lb-rank.bronze { background: rgba(205,127,50,0.18); color: #cd7f32; border: 1px solid rgba(205,127,50,0.35); }
+    .lb-rank.other  { background: rgba(255,255,255,0.05); color: var(--p-muted); border: 1px solid rgba(255,255,255,0.08); }
+    .lb-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(0,229,200,0.25), rgba(0,176,155,0.15));
+      border: 1px solid rgba(0,229,200,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--p-teal);
+      flex-shrink: 0;
+    }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--p-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-sessions {
+      font-size: 0.7rem;
+      color: var(--p-muted);
+      margin-top: 1px;
+    }
+    .lb-score {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--p-teal);
+      white-space: nowrap;
+    }
+    .lb-score span {
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--p-muted);
+    }
+    .lb-empty {
+      padding: 2rem;
+      text-align: center;
+      color: var(--p-muted);
+      font-size: 0.82rem;
+    }
+    .lb-loading {
+      padding: 2rem;
+      text-align: center;
+      color: var(--p-muted);
+      font-size: 0.82rem;
+    }
+    .lb-footer {
+      padding: 0.6rem 1.1rem;
+      border-top: 1px solid var(--p-glass-border);
+      font-size: 0.7rem;
+      color: var(--p-muted);
+      text-align: center;
+    }
+  </style>
 </head>
 <body class="login-page">
 
@@ -14,6 +191,24 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="login.html">Login</a></li>
       <li><a href="register.html">Register</a></li>
+      <li class="lb-wrapper">
+        <button class="lb-btn" onclick="toggleLeaderboard()" id="lb-toggle-btn">
+          <span class="lb-icon">🏆</span> Leaderboard
+        </button>
+        <div class="lb-panel" id="lb-panel">
+          <div class="lb-panel-header">
+            <div>
+              <div class="lb-panel-title">Student Leaderboard</div>
+              <div class="lb-panel-sub">Ranked by completed sit-in sessions</div>
+            </div>
+            <button class="lb-close" onclick="toggleLeaderboard()">✕</button>
+          </div>
+          <div class="lb-list" id="lb-list">
+            <div class="lb-loading">Loading rankings...</div>
+          </div>
+          <div class="lb-footer">Updated in real-time · Top 10 students</div>
+        </div>
+      </li>
     </ul>
   </nav>
 
@@ -62,6 +257,57 @@
   <footer class="footer">© 2024 PELISAN Sit-In · College of Computer Studies</footer>
 
   <script src="js/app.js"></script>
+  <script>
+    // ===== LEADERBOARD =====
+    let lbOpen = false;
+    let lbLoaded = false;
+
+    function toggleLeaderboard() {
+      lbOpen = !lbOpen;
+      document.getElementById('lb-panel').classList.toggle('open', lbOpen);
+      if (lbOpen && !lbLoaded) fetchLeaderboard();
+    }
+
+    async function fetchLeaderboard() {
+      try {
+        const data = await apiCall('GET', '/leaderboard');
+        renderLeaderboard(data);
+        lbLoaded = true;
+      } catch (e) {
+        document.getElementById('lb-list').innerHTML = '<div class="lb-empty">Could not load leaderboard.</div>';
+      }
+    }
+
+    function renderLeaderboard(list) {
+      const container = document.getElementById('lb-list');
+      if (!list || !list.length) {
+        container.innerHTML = '<div class="lb-empty">No sit-in records yet.</div>';
+        return;
+      }
+      const rankClass = i => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'other';
+      const rankLabel = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+      const initials = name => name.split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+
+      container.innerHTML = list.map((s, i) => `
+        <div class="lb-item">
+          <div class="lb-rank ${rankClass(i)}">${rankLabel(i)}</div>
+          <div class="lb-avatar">${initials(s.name)}</div>
+          <div class="lb-info">
+            <div class="lb-name">${s.name}</div>
+            <div class="lb-sessions">${s.totalSessions} session${s.totalSessions !== 1 ? 's' : ''} completed</div>
+          </div>
+          <div class="lb-score">${s.totalSessions} <span>sits</span></div>
+        </div>`).join('');
+    }
+
+    // Close panel when clicking outside
+    document.addEventListener('click', function(e) {
+      if (lbOpen && !document.getElementById('lb-panel').contains(e.target) && !document.getElementById('lb-toggle-btn').contains(e.target)) {
+        lbOpen = false;
+        document.getElementById('lb-panel').classList.remove('open');
+      }
+    });
+  </script>
   <script>
     // Redirect if already logged in
     Auth.current().then(user => {

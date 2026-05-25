@@ -16,12 +16,12 @@ router.post('/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.json({ error: 'Invalid ID number or password.' });
 
-    // Store in session (exclude password)
     const { password: _, ...safeUser } = user;
     req.session.user = safeUser;
     return res.json({ success: true, user: safeUser });
   } catch (err) {
-    return res.json({ error: 'Server error: ' + err.message });
+    console.error('[LOGIN ERROR]', err.message);
+    return res.json({ error: 'Database error: ' + err.message });
   }
 });
 
@@ -45,7 +45,8 @@ router.post('/register', async (req, res) => {
     );
     return res.json({ success: true });
   } catch (err) {
-    return res.json({ error: 'Server error: ' + err.message });
+    console.error('[REGISTER ERROR]', err.message);
+    return res.json({ error: 'Database error: ' + err.message });
   }
 });
 

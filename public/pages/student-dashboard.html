@@ -65,6 +65,54 @@
 
     .empty-msg { color:var(--p-muted); padding:2.5rem; text-align:center; font-size:0.875rem; }
 
+    /* Leaderboard */
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--p-glass-border);
+      transition: background 0.15s;
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: var(--p-glass); border-radius: 8px; }
+    .lb-row-rank {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .lb-row-rank.gold   { background: rgba(255,209,102,0.18); color: #ffd166; border: 1px solid rgba(255,209,102,0.4); }
+    .lb-row-rank.silver { background: rgba(200,210,230,0.14); color: #c8d2e6; border: 1px solid rgba(200,210,230,0.3); }
+    .lb-row-rank.bronze { background: rgba(205,127,50,0.18); color: #cd7f32; border: 1px solid rgba(205,127,50,0.35); }
+    .lb-row-rank.other  { background: rgba(255,255,255,0.05); color: var(--p-muted); border: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; }
+    .lb-row-avatar {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0,229,200,0.2), rgba(0,176,155,0.1));
+      border: 1px solid rgba(0,229,200,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700;
+      color: var(--p-teal); flex-shrink: 0;
+    }
+    .lb-row-avatar.me {
+      background: linear-gradient(135deg, var(--p-teal), var(--p-teal-dim));
+      color: var(--p-deep);
+      box-shadow: 0 0 14px rgba(0,229,200,0.35);
+    }
+    .lb-row-info { flex: 1; min-width: 0; }
+    .lb-row-name { font-size: 0.9rem; font-weight: 600; color: var(--p-text); }
+    .lb-row-name.me { color: var(--p-teal); }
+    .lb-row-meta { font-size: 0.75rem; color: var(--p-muted); margin-top: 2px; }
+    .lb-row-score {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--p-teal); text-align: right;
+    }
+    .lb-row-score-label { font-size: 0.7rem; font-weight: 400; color: var(--p-muted); }
+
     /* PC Grid */
     .pc-grid-section { margin-top: 1.25rem; }
     .pc-grid-label { font-size: 0.8rem; font-weight: 700; color: var(--p-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.65rem; }
@@ -177,6 +225,9 @@
         <li class="sidebar-nav-item" id="nav-rewards">
           <a href="#" onclick="showSection('rewards')"><span class="nav-icon">🏆</span> Rewards</a>
         </li>
+        <li class="sidebar-nav-item" id="nav-leaderboard">
+          <a href="#" onclick="showSection('leaderboard')"><span class="nav-icon">🥇</span> Leaderboard</a>
+        </li>
         <li class="sidebar-nav-item" id="nav-feedback">
           <a href="#" onclick="showSection('feedback')"><span class="nav-icon">✉️</span> Feedback</a>
         </li>
@@ -246,7 +297,25 @@
           </div>
         </div>
 
-        <!-- Sit-in Request -->
+        <!-- Pending Request Status -->
+        <div id="pending-request-box" style="display:none;" class="mb-2">
+          <div class="sitin-card" style="border-color:rgba(255,180,0,0.4);background:rgba(255,180,0,0.06);">
+            <div class="sitin-info">
+              <h3>⏳ Sit-In Request Pending</h3>
+              <p id="pr-lab">Lab —</p>
+              <p id="pr-purpose">Purpose: —</p>
+              <p id="pr-pc">PC: —</p>
+              <p style="font-size:0.78rem;color:var(--p-muted);margin-top:0.4rem;">Waiting for admin approval. Please stay nearby.</p>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:1.6rem;">🕐</span>
+              <br>
+              <button class="btn btn-sm mt-1" style="background:rgba(255,80,80,0.15);color:#ff6b6b;border:1px solid rgba(255,80,80,0.3);" onclick="cancelMyRequest()">Cancel Request</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sit-in Request Form -->
         <div class="card mb-2" id="sitin-request-box">
           <div class="card-title">Request Sit-In Session</div>
           <div id="sitin-alert" class="alert"></div>
@@ -288,7 +357,7 @@
             <div class="pc-selected-info" id="pc-selected-info">✔ PC #<span id="pc-selected-num">—</span> selected</div>
           </div>
 
-          <button class="btn btn-primary" style="width:auto;padding:0.65rem 2rem;margin-top:1.25rem;" onclick="requestSitin()">→ Start Sit-In</button>
+          <button class="btn btn-primary" style="width:auto;padding:0.65rem 2rem;margin-top:1.25rem;" onclick="requestSitin()">→ Request Sit-In</button>
         </div>
       </section>
 
@@ -420,6 +489,18 @@
         </div>
       </section>
 
+      <!-- LEADERBOARD -->
+      <section id="section-leaderboard" style="display:none;">
+        <div class="page-header">
+          <h1 class="page-title">🏆 Student Leaderboard</h1>
+          <p class="page-subtitle">Top students ranked by completed sit-in sessions.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Top 10 Students</div>
+          <div id="leaderboard-list"><p class="empty-msg">Loading...</p></div>
+        </div>
+      </section>
+
       <!-- RECORDS -->
       <section id="section-records" style="display:none;">
         <div class="page-header">
@@ -455,7 +536,7 @@
     async function init() {
       currentUser = await Auth.require(false);
       if (!currentUser) return;
-      if (currentUser.role === 'admin') { window.location.href = '../pages/admin-dashboard.html'; return; }
+      if (currentUser.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
       loadUser();
       await updateStats();
       await checkActiveSitin();
@@ -488,18 +569,31 @@
       const all = await SitIn.getByStudent(currentUser.idNumber);
       const active = all.find(s => s.status === 'active');
       const box = document.getElementById('current-sitin-box');
+      const pendingBox = document.getElementById('pending-request-box');
       const reqBox = document.getElementById('sitin-request-box');
+
       if (active) {
-        box.style.display = 'block'; reqBox.style.display = 'none';
+        box.style.display = 'block'; pendingBox.style.display = 'none'; reqBox.style.display = 'none';
         document.getElementById('cs-lab').textContent = active.lab + (active.pcNumber ? ` — PC #${active.pcNumber}` : '');
         document.getElementById('cs-purpose').textContent = 'Purpose: ' + active.purpose;
         document.getElementById('cs-timein').textContent = 'Time In: ' + SitIn.formatTime(active.timeIn);
         startTimer(active.timeIn);
-      } else {
-        box.style.display = 'none'; reqBox.style.display = 'block';
-        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-        await renderPcGrid();
+        return;
       }
+
+      const req = await SitIn.getMyRequest(currentUser.idNumber);
+      if (req && req.status === 'pending') {
+        box.style.display = 'none'; pendingBox.style.display = 'block'; reqBox.style.display = 'none';
+        document.getElementById('pr-lab').textContent = 'Lab: ' + req.lab;
+        document.getElementById('pr-purpose').textContent = 'Purpose: ' + req.purpose;
+        document.getElementById('pr-pc').textContent = req.pcNumber ? `PC: #${req.pcNumber}` : 'PC: Any available';
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        return;
+      }
+
+      box.style.display = 'none'; pendingBox.style.display = 'none'; reqBox.style.display = 'block';
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      await renderPcGrid();
     }
 
     function startTimer(timeIn) {
@@ -562,14 +656,20 @@
 
     async function requestSitin() {
       if (currentUser.remainingSessions <= 0) { showAlert('sitin-alert', 'You have no remaining sessions. Please contact admin.'); return; }
-      if (!selectedPc) { showAlert('sitin-alert', 'Please select a PC from the grid before starting.'); return; }
+      if (!selectedPc) { showAlert('sitin-alert', 'Please select a PC from the grid before submitting.'); return; }
       const purpose = document.getElementById('sitin-purpose').value;
       const lab = document.getElementById('sitin-lab').value;
-      const result = await SitIn.start(currentUser.idNumber, `${currentUser.firstName} ${currentUser.lastName}`, purpose, lab, selectedPc);
+      const result = await SitIn.submitRequest(currentUser.idNumber, `${currentUser.firstName} ${currentUser.lastName}`, purpose, lab, selectedPc);
       if (result.error) { showAlert('sitin-alert', result.error); return; }
-      showAlert('sitin-alert', `Sit-in session started on PC #${selectedPc}!`, 'success');
+      showAlert('sitin-alert', `Request submitted! Waiting for admin approval.`, 'success');
       selectedPc = null;
-      await updateStats();
+      setTimeout(() => checkActiveSitin(), 1200);
+    }
+
+    async function cancelMyRequest() {
+      const req = await SitIn.getMyRequest(currentUser.idNumber);
+      if (!req || req.status !== 'pending') return;
+      await SitIn.rejectRequest(req.id);
       await checkActiveSitin();
     }
 
@@ -583,7 +683,7 @@
     }
 
     function showSection(name) {
-      ['dashboard','rules','announcements','rewards','feedback','records','profile'].forEach(s => {
+      ['dashboard','rules','announcements','rewards','leaderboard','feedback','records','profile'].forEach(s => {
         document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
         document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
       });
@@ -592,6 +692,34 @@
       if (name === 'announcements') loadAnnouncements();
       if (name === 'rewards') loadRewards();
       if (name === 'feedback') loadFeedback();
+      if (name === 'leaderboard') loadLeaderboard();
+    }
+
+    async function loadLeaderboard() {
+      const container = document.getElementById('leaderboard-list');
+      if (!container) return;
+      container.innerHTML = '<p class="empty-msg">Loading...</p>';
+      const list = await Leaderboard.get();
+      if (!list || list.error || !list.length) {
+        container.innerHTML = '<p class="empty-msg">No sit-in records yet.</p>';
+        return;
+      }
+      const rankClass = i => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'other';
+      const rankLabel = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+      const initials = name => name.split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+      container.innerHTML = list.map((s, i) => {
+        const isMe = currentUser && s.idNumber === currentUser.idNumber;
+        return `
+          <div class="lb-row">
+            <div class="lb-row-rank ${rankClass(i)}">${rankLabel(i)}</div>
+            <div class="lb-row-avatar ${isMe ? 'me' : ''}">${initials(s.name)}</div>
+            <div class="lb-row-info">
+              <div class="lb-row-name ${isMe ? 'me' : ''}">${s.name}${isMe ? ' (You)' : ''}</div>
+              <div class="lb-row-meta">${s.totalSessions} session${s.totalSessions !== 1 ? 's' : ''} completed · ${s.totalPoints} pts</div>
+            </div>
+            <div class="lb-row-score">${s.totalSessions}<br><span class="lb-row-score-label">sessions</span></div>
+          </div>`;
+      }).join('');
     }
 
     function loadProfile() {
