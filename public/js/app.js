@@ -24,7 +24,7 @@ const Auth = {
     return apiCall('POST', '/auth/register', data);
   },
   async logout() {
-    await apiCall('POST', '/auth/logout');
+    window.location.replace('/login.html');
     window.location.replace('/login.html');
   },
   async current() {
