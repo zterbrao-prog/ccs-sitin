@@ -42,7 +42,6 @@ const Auth = {
     return u;
   }
 };
-
 // ===== SIT-IN =====
 const SitIn = {
   async getAll() { return apiCall('GET', '/sitins'); },
