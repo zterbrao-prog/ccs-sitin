@@ -25,7 +25,6 @@ const Auth = {
   },
   async logout() {
     window.location.replace('/login.html');
-    window.location.replace('/login.html');
   },
   async current() {
     const data = await apiCall('GET', '/auth/me');
@@ -35,12 +34,21 @@ const Auth = {
     const u = await this.current();
     return u && u.role === 'admin';
   },
-  async require(admin = false) {
-    const u = await this.current();
-    if (!u) { window.location.replace('/login.html'); return null; }
-    if (admin && u.role !== 'admin') { window.location.replace('/pages/student-dashboard.html'); return null; }
-    return u;
+ async require(admin = false) {
+  const u = await this.current();
+
+  if (!u) {
+    window.location.replace('/login.html');
+    return null;
   }
+
+  if (admin && u.role !== 'admin') {
+    window.location.replace('/pages/student-dashboard.html');
+    return null;
+  }
+
+  return u;
+}
 };
 // ===== SIT-IN =====
 const SitIn = {
